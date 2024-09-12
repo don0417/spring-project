@@ -15,11 +15,13 @@
     <div th:if="${session.userId == null}">
         <a th:href="@{/login.do}">로그인</a>
         <a th:href="@{/regForm.do}">회원가입</a>
+        <a th:href="@{/rsv.do}">예약</a>
     </div>
     
     <!-- 로그인했을 때 -->
     <div th:if="${session.userId != null}">
         <a th:href="@{/logout.do}">로그아웃</a>
+        <a th:href="@{/rsv.do}">예약</a>
     </div>
 
 </body>

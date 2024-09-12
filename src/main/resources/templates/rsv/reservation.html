@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/defaultLayout}"
+      layout:fragment="Content">
+<head>
+    <meta charset="UTF-8">
+    <title>빠른예약</title>
+    <style>
+        /* 전체 페이지 스타일 */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f2f5;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1.title {
+            text-align: center;
+            color: #333;
+            margin: 10px 0;
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+
+        /* 컨테이너 레이아웃 */
+        .container {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin: 0 auto;
+            padding: 0px;
+            width: 90%;
+            max-width: 1200px;
+            gap: 20px;
+        }
+
+        /* 지도 영역 스타일 */
+        #map {
+            width: 70%;
+            height: 500px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        /* 카드 컨테이너 */
+        .card {
+            flex: 4;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            border-radius: 10px;
+            background-color: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-header {
+            margin-bottom: 20px;
+        }
+
+        /* 탭 스타일 */
+        .tabs {
+            display: flex;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            flex: 1;
+            text-align: center;
+            padding: 12px;
+            cursor: pointer;
+            border-radius: 8px 8px 0 0;
+            border: 1px solid #ddd;
+            font-weight: bold;
+            background-color: #f9f9f9;
+            transition: background-color 0.3s ease;
+        }
+
+        .tab.active {
+            background-color: #0d6efd;
+            color: white;
+            border-bottom: none;
+        }
+
+        .tab:not(.active):hover {
+            background-color: #e0e0e0;
+        }
+
+        /* 스케줄 스타일 */
+        .schedule {
+            display: grid;
+            grid-template-columns: repeat(1, 1fr);
+            grid-template-rows: repeat(14, 1fr);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+
+        .schedule div {
+            padding-left: 10px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            transition: background-color 0.3s ease;
+        }
+
+        .schedule div:hover {
+            background-color: #e9ecef;
+        }
+
+        /* 스크롤 */
+        .schedule-scroll {
+            max-height: 350px;
+            overflow-y: auto;
+            padding: 0.5rem;
+        }
+
+        /* 스크롤바 스타일 숨기기 */
+        .schedule-scroll::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .schedule-scroll::-webkit-scrollbar-thumb {
+            background-color: #ccc;
+            border-radius: 10px;
+        }
+
+        /* 날짜 선택 스타일 */
+        .date-picker {
+            width: 100%;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #ddd;
+            font-size: 1rem;
+            margin-bottom: 20px;
+        }
+
+        /* 예약 버튼 스타일 */
+        .add-reservation-btn {
+            background-color: #0d6efd;
+            color: white;
+            padding: 15px;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .add-reservation-btn:hover {
+            background-color: #0056b3;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .container {
+                flex-direction: column;
+            }
+            #map {
+                width: 100%;
+                margin-bottom: 20px;
+            }
+            .card {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1 class="title">공공시설 예약 페이지</h1>
+
+    <!-- 컨테이너 -->
+    <div class="container">
+        <!-- 지도 영역 -->
+        <div id="map"></div>
+
+        <!-- 예약 카드 -->
+        <div class="card">
+        
+	        <div class="card-header">
+		        	<!-- 날짜 선택 -->
+	            <input type="date" id="reservationDate" class="date-picker" value="2024-08-31">
+	
+	            <!-- 회의실 선택 탭 -->
+	            <div class="tabs">
+	                <div class="tab active" id="earth" onclick="selectRoom('earth')">Earth</div>
+	                <div class="tab" id="hub" onclick="selectRoom('hub')">Hub</div>
+	                <div class="tab" id="tree" onclick="selectRoom('tree')">Tree</div>
+	            </div>
+	        </div>
+	        
+	        <div class="card-body">
+		        <div class="schedule-scroll">
+			        <!-- 시간 선택 -->
+					 <div class="schedule">
+					 	<div>09:00</div>
+					    <div>10:00</div>
+					    <div>11:00</div>
+					    <div>12:00</div>
+					    <div>13:00</div>
+					    <div>14:00</div>
+					    <div>15:00</div>
+					    <div>16:00</div>
+					    <div>17:00</div>
+					    <div>18:00</div>
+					    <div>19:00</div>
+					    <div>20:00</div>
+					    <div>21:00</div>
+					    <div>22:00</div>
+					</div>
+		        </div>
+	        </div>
+            
+            <!-- 예약 추가 버튼 -->
+            <button class="add-reservation-btn" onclick="addReservation()">예약하기</button>
+        </div>
+    </div>
+
+    <!-- Kakao 지도 스크립트 -->
+    <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=333bda7da18df138fb4d9b3e5cf351c4"></script>
+    <script>
+        var container = document.getElementById('map'); // 지도를 담을 영역의 DOM 레퍼런스
+        var options = { // 지도를 생성할 때 필요한 기본 옵션
+            center: new kakao.maps.LatLng(37.56677914878755, 126.97862963358072), // 지도의 중심좌표.
+            level: 3 // 지도의 레벨(확대, 축소 정도)
+        };
+
+        var map = new kakao.maps.Map(container, options); // 지도 생성 및 객체 리턴
+
+        // 현재 선택된 회의실 (기본값: Earth 회의실)
+        var selectedRoom = 'earth';
+
+        // 회의실 선택 처리 함수
+        function selectRoom(room) {
+            selectedRoom = room;
+
+            // 모든 탭의 active 클래스 제거
+            document.getElementById('earth').classList.remove('active');
+            document.getElementById('hub').classList.remove('active');
+            document.getElementById('tree').classList.remove('active');
+
+            // 선택된 탭에 active 클래스 추가
+            document.getElementById(room).classList.add('active');
+        }
+
+        // 예약 추가 처리 함수
+        function addReservation() {
+            var reservationDate = document.getElementById('reservationDate').value;
+            alert('예약이 추가되었습니다!\n날짜: ' + reservationDate + '\n회의실: ' + selectedRoom);
+        }
+        
+        
+        
+        let exData = [
+        		{
+        	        title: '장충체육관',
+        	        type: '체육시설',
+        	        latlng: new kakao.maps.LatLng(37.55818, 127.00683)
+        	    },
+        	    {
+        	        title: '잠실체육관',
+        	        type: '체육시설',
+        	        latlng: new kakao.maps.LatLng(37.51215, 127.07188)
+        	    },
+        	    {
+        	        title: '서울광장',
+        	        type: '문화시설',
+        	        latlng: new kakao.maps.LatLng(37.5665, 126.9780)
+        	    },
+        	    {
+        	        title: 'CKL스테이지',
+        	        type: '공연장',
+        	        latlng: new kakao.maps.LatLng(37.56851, 126.98166)
+        	    }
+        
+        ]
+        
+     // 마커 이미지의 이미지 주소입니다
+        var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; 
+            
+        for (var i = 0; i < exData.length; i ++) {
+            
+            // 마커 이미지의 이미지 크기 입니다
+            var imageSize = new kakao.maps.Size(24, 35); 
+            
+            // 마커 이미지를 생성합니다    
+            var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize); 
+            
+            // 마커를 생성합니다
+            var marker = new kakao.maps.Marker({
+                map: map, // 마커를 표시할 지도
+                position: exData[i].latlng, // 마커를 표시할 위치
+                title : exData[i].title, // 마커의 타이틀, 마커에 마우스를 올리면 타이틀이 표시됩니다
+                image : markerImage // 마커 이미지 
+            });
+        }
+    </script>
+</body>
+</html>

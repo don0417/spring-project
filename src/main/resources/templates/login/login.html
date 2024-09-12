@@ -1,5 +1,9 @@
 <!DOCTYPE html>
-<html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{common/layouts/defaultLayout}"
+      layout:fragment="Content">
 <head>
 <meta charset="UTF-8">
 <title>Insert title here</title>
@@ -41,7 +45,7 @@
             	    	  alert('아이디 혹은 비밀번호가 다릅니다.');
             	    	  $('#id').focus();
             	      }else {
-            	    	  window.location.href='/home';
+            	    	  window.location.href='main.do';
             	      }
             	   }
             });
